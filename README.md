@@ -1,29 +1,51 @@
 # Nota Técnica: Normalización y Exploración de Transacciones Multifuente
 
-## 1. Objetivo y Arquitectura Desacoplada
-Diseñé este sistema para ingestar, unificar y auditar registros financieros provenientes de tres proveedores heterogéneos (`SOURCE_A`, `SOURCE_B` y `SOURCE_C`) hacia un modelo canónico único. Para garantizar mantenibilidad y separación de responsabilidades, dividí la solución en dos capas independientes:
-* **Núcleo de dominio (`src/`):** Contiene los modelos inmutables (`models.py`), la detección automática de fuentes y transformaciones (`normalizer.py`), el pipeline de validación y cuarentena (`validator.py`) y el motor de agregaciones (`metrics.py`).
-* **Capa de presentación (`app.py`):** Interfaz interactiva en Streamlit desacoplada de las reglas de negocio, dedicada exclusivamente a la carga de archivos, filtrado en memoria, visualización de KPIs y exportación de reportes JSON.
-* **Reglas externalizadas (`config/rules.json`):** Permite actualizar equivalencias de estados, símbolos monetarios y formatos de fecha sin modificar el código fuente.
+## 1. ¿De qué trata el proyecto y cómo lo organicé?
 
-## 2. Decisiones Técnicas y Manejo de Casos Borde
-1. **Esquema Canónico Estricto:** Estandaricé todas las salidas válidas a `{id, amount, currency, timestamp, status, source}` con montos `float` positivos redondeados a 2 decimales, divisas ISO-4217 en mayúsculas y marcas de tiempo normalizadas a UTC ISO-8601 (`YYYY-MM-DDTHH:MM:SSZ`).
-2. **Aritmética Exacta para Centavos (`SOURCE_B`):** Exijo que `total` sea un entero estricto (descartando booleanos o decimales) y realizo la división entre `100` mediante `decimal.Decimal` antes de convertir a `float` con redondeo `ROUND_HALF_UP`, eliminando errores de punto flotante binario.
-3. **Extracción de Símbolo y Formato Europeo (`SOURCE_C`):** Separo el prefijo/sufijo monetario (`€`, `$`, `£`) mediante expresiones regulares validadas contra `rules.json`, eliminando separadores de miles (`.`) y transformando la coma decimal (`,`) en punto decimal.
-4. **Política de Cuarentena No Destructiva:** Ningún registro corrupto detiene el proceso ni se descarta en silencio. Todo fallo (montos `<= 0`, fechas imposibles como `30/02/2025`, monedas no soportadas o esquemas desconocidos) se encapsula en `invalid_transactions` preservando el payload original y el motivo exacto (`error_reason`).
+La idea de este proyecto es trabajar con transacciones que vienen de tres fuentes diferentes (`SOURCE_A`, `SOURCE_B` y `SOURCE_C`). Como cada una maneja sus datos a su manera, lo que hice fue crear un sistema que los recibe, identifica de dónde vienen y los convierte a un mismo formato. Así es mucho más fácil trabajar con ellos y analizarlos después.
 
-## 3. Instrucciones de Ejecución
+Para no tener todo el código amontonado en un solo archivo, decidí dividirlo según lo que hace cada parte:
+
+- **Carpeta `src/`:** Aquí está lo que hace funcionar al sistema. Se encarga de reconocer las fuentes, transformar los datos, revisar que estén correctos y calcular las estadísticas.
+- **Archivo `app.py`:** Es la interfaz que se abre con Streamlit. Desde aquí se pueden subir archivos, aplicar filtros, ver los resultados y descargar los reportes. La idea es que la interfaz se encargue de mostrar la información, no de procesarla.
+- **Archivo `config/rules.json`:** Aquí guardé las reglas que utiliza el sistema para reconocer monedas, estados y formatos de fecha. Esto permite cambiar ciertas configuraciones sin tener que meterse a modificar el código.
+
+## 2. Decisiones que tomé durante el desarrollo
+
+Mientras desarrollaba el proyecto, me encontré con algunos detalles que había que tomar en cuenta para evitar errores al procesar los datos. Estas fueron las decisiones más importantes:
+
+1. **Unificar el formato de las transacciones:** Como cada fuente tiene una estructura diferente, decidí que todas las transacciones válidas terminaran con los mismos campos: `id`, `amount`, `currency`, `timestamp`, `status` y `source`. También establecí que los montos fueran positivos y tuvieran dos decimales, que las monedas utilizaran su código correspondiente y que todas las fechas se convirtieran a UTC. De esta forma, después de normalizar los datos, ya no importa de qué fuente venían porque todos tienen la misma estructura.
+
+2. **Convertir correctamente los centavos de SOURCE_B:** En esta fuente los montos vienen en centavos. Por ejemplo, si recibo `12550`, realmente significa `$125.50`. Para hacer esa conversión utilicé `Decimal`, porque trabajar directamente con `float` puede provocar pequeñas diferencias en los resultados cuando se manejan decimales. También agregué una validación para evitar que Python acepte valores como `True` como si fueran números enteros.
+
+3. **Procesar los símbolos de moneda de SOURCE_C:** Esta fuente presenta los montos de una forma diferente, por ejemplo: `€45,90`. Para resolverlo, primero identifico el símbolo de la moneda y después convierto el número al formato que utiliza el sistema. También tengo en cuenta los separadores de miles para evitar que una cantidad se interprete incorrectamente.
+
+4. **¿Qué pasa cuando un registro viene mal?** No quería que un solo dato incorrecto hiciera que todo el proceso fallara. Por eso implementé una cuarentena donde se guardan los registros que no cumplen con las reglas. Por ejemplo, si llega un monto negativo, una fecha imposible o una moneda que el sistema no reconoce, el registro se marca como inválido y se guarda junto con sus datos originales y la razón del error. Así puedo revisar qué pasó sin perder la información.
+
+## 3. ¿Cómo ejecutar el proyecto?
+
+Primero hay que instalar las dependencias desde la terminal:
+
 ```bash
-# 1. Instalar dependencias mínimas
 pip install -r requirements.txt
+```
 
-# 2. Ejecutar la aplicación web interactiva
+Después, desde la carpeta principal del proyecto, se ejecuta:
+
+```bash
 streamlit run app.py
 ```
 
-## 4. Uso Estratégico de IA y Ajustes Críticos Realizados
-Utilicé un asistente de IA como par técnico para acelerar el esqueleto inicial de las clases y los componentes visuales de Streamlit. Sin embargo, tras auditar el código generado contra los criterios de calidad y casos borde, realicé cuatro correcciones fundamentales:
-1. **Eliminación de lógica acoplada en la vista:** La propuesta inicial de la IA mezclaba el parsing de JSON y el cálculo de métricas dentro de `app.py`; extraje toda esa lógica hacia `src/validator.py` y `src/metrics.py` para permitir pruebas unitarias independientes.
-2. **Sustitución de `float` directo por `Decimal`:** La IA dividía `total / 100` directamente en punto flotante, lo que introducía imprecisiones en sumatorias agregadas; reescribí el cálculo monetario con `decimal.Decimal` y `ROUND_HALF_UP`.
-3. **Bloqueo de booleanos como enteros en Python:** En Python `isinstance(True, int)` evalúa a `True`. Añadí comprobaciones explícitas `not isinstance(val, bool)` en `normalizer.py` para evitar que un campo booleano corrupto en `SOURCE_B` se convirtiera en `$0.01`.
-4. **Estabilización de controles dinámicos en Streamlit:** Cuando un archivo subido contiene una sola transacción válida (`min == max`), `st.slider` lanza una excepción en tiempo de ejecución; incorporé una guarda condicional en `app.py` para degradar con gracia cuando no existe rango numérico.
+Con eso se abre la aplicación en el navegador. Al entrar, se puede trabajar con el archivo de ejemplo que incluye el proyecto o subir un JSON propio. Después de procesarlo, se pueden consultar las estadísticas, filtrar las transacciones y descargar los resultados.
+
+## 4. ¿Cómo utilicé la IA y qué tuve que corregir?
+
+Durante el desarrollo utilicé IA como apoyo para avanzar más rápido, principalmente para crear la estructura inicial del proyecto y algunos elementos de la interfaz en Streamlit. Sin embargo, no me limité a copiar lo que generaba. Fui revisando el código y encontré algunas cosas que necesitaban corregirse o mejorarse.
+
+Estos fueron algunos de los cambios que hice:
+
+1. **Separé mejor el código:** Al principio había demasiadas operaciones dentro de `app.py`, incluso cosas como procesar los JSON y calcular las estadísticas. Decidí mover esas funciones a los archivos correspondientes para que cada parte del proyecto tuviera una responsabilidad más clara.
+2. **Corregí el manejo de los decimales:** La primera propuesta utilizaba `float` directamente para convertir los centavos de `SOURCE_B`. Lo cambié por `Decimal` y `ROUND_HALF_UP`, ya que es una opción más adecuada cuando se trabaja con cantidades de dinero.
+3. **Evité que los booleanos se aceptaran como números:** Encontré un detalle de Python que podía causar problemas: `True` puede ser interpretado como un número entero. Por eso agregué una validación adicional para evitar que un valor de ese tipo pasara como una cantidad válida.
+4. **Solucioné un problema con los filtros:** También tuve que contemplar un caso en Streamlit donde el filtro `st.slider` podía fallar si solo había una transacción válida, porque el valor mínimo y máximo terminaban siendo iguales. Agregué una condición para que la aplicación pudiera manejar ese escenario sin detenerse.
+En general, la IA me ayudó a avanzar con la estructura y algunas partes del código, pero fue necesario revisar sus propuestas, entender cómo funcionaban y hacer los cambios necesarios para que el proyecto cumpliera con lo que se pedía.

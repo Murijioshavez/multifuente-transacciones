@@ -1,0 +1,103 @@
+
+[
+  {
+    "transaction_id": "A001",
+    "amount": 150.75,
+    "currency": "USD",
+    "date": "2026-11-10 14:30:00",
+    "status": "completed"
+  },
+  {
+    "transaction_id": "A002",
+    "amount": 89.99,
+    "currency": "EUR",
+    "date": "2026-11-11 09:15:00",
+    "status": "pending"
+  },
+  {
+    "transaction_id": "A003",
+    "amount": -25.00,
+    "currency": "USD",
+    "date": "2026-11-12 10:00:00",
+    "status": "completed"
+  },
+  {
+    "transaction_id": "A004",
+    "amount": 200,
+    "currency": "JPY",
+    "date": "2026-11-12 11:00:00",
+    "status": "completed"
+  },
+  {
+    "id": "B001",
+    "total": 12550,
+    "currency_code": "USD",
+    "created_at": "10/11/2026 14:30",
+    "payment_status": "approved"
+  },
+  {
+    "id": "B002",
+    "total": 9999,
+    "currency_code": "EUR",
+    "created_at": "11/11/2026 16:45",
+    "payment_status": "processing"
+  },
+  {
+    "id": "B003",
+    "total": -500,
+    "currency_code": "USD",
+    "created_at": "12/11/2026 08:00",
+    "payment_status": "approved"
+  },
+  {
+    "id": "B004",
+    "total": 7500,
+    "currency_code": "USD",
+    "created_at": "31/02/2026 12:00",
+    "payment_status": "approved"
+  },
+  {
+    "reference": "C001",
+    "value": "€45,90",
+    "timestamp": "2026-11-10T12:30:00Z",
+    "state": "success"
+  },
+  {
+    "reference": "C002",
+    "value": "$120,50",
+    "timestamp": "2026-11-11T15:45:00Z",
+    "state": "pending"
+  },
+  {
+    "reference": "C003",
+    "value": "£80,00",
+    "timestamp": "2026-11-12T10:20:00Z",
+    "state": "success"
+  },
+  {
+    "reference": "C004",
+    "value": "€0,00",
+    "timestamp": "2026-11-12T11:30:00Z",
+    "state": "success"
+  },
+  {
+    "transaction_id": "A005",
+    "amount": 75.25,
+    "currency": "USD",
+    "date": "2026-11-13 13:00:00",
+    "status": "declined"
+  },
+  {
+    "id": "B005",
+    "total": 25000,
+    "currency_code": "EUR",
+    "created_at": "13/11/2026 09:30",
+    "payment_status": "approved"
+  },
+  {
+    "reference": "C005",
+    "value": "$15,75",
+    "timestamp": "2026-11-13T18:00:00Z",
+    "state": "unknown"
+  }
+]

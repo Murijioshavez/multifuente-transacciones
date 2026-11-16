@@ -1,0 +1,121 @@
+[
+  {
+    "id": "TX-1001",
+    "amount": "100.50",
+    "currency": "USD",
+    "timestamp": "2025-03-10 14:22:00",
+    "status": "completed"
+  },
+  {
+    "transaction_id": 204,
+    "total": 10050,
+    "currency_code": "usd",
+    "created_at": "10/03/2025 14:22",
+    "state": "OK"
+  },
+  {
+    "ref": "A-77",
+    "amount": "€99,99",
+    "date": "2025-03-10T14:22:00Z",
+    "result": "success"
+  },
+  {
+    "id": "TX-1002",
+    "amount": "450.00",
+    "currency": "EUR",
+    "timestamp": "2025-03-11 09:15:30",
+    "status": "pending"
+  },
+  {
+    "id": "TX-1003",
+    "amount": "75.25",
+    "currency": "GBP",
+    "timestamp": "2025-03-11 18:40:12",
+    "status": "declined"
+  },
+  {
+    "transaction_id": 205,
+    "total": 250000,
+    "currency_code": "EUR",
+    "created_at": "12/03/2025 08:05",
+    "state": "PROCESSING"
+  },
+  {
+    "transaction_id": 206,
+    "total": 4999,
+    "currency_code": "usd",
+    "created_at": "12/03/2025 11:50",
+    "state": "ERROR"
+  },
+  {
+    "ref": "A-78",
+    "amount": "$1.250,75",
+    "date": "2025-03-12T16:10:00Z",
+    "result": "approved"
+  },
+  {
+    "ref": "A-79",
+    "amount": "£320,00",
+    "date": "2025-03-13T10:00:00+00:00",
+    "result": "cancelled"
+  },
+  {
+    "ref": "A-80",
+    "amount": "€15,40",
+    "date": "2025-03-13T19:45:00Z",
+    "result": "waiting"
+  },
+  {
+    "id": "TX-ERR-01",
+    "amount": "-45.00",
+    "currency": "USD",
+    "timestamp": "2025-03-14 10:00:00",
+    "status": "completed"
+  },
+  {
+    "transaction_id": 901,
+    "total": 0,
+    "currency_code": "USD",
+    "created_at": "14/03/2025 10:15",
+    "state": "OK"
+  },
+  {
+    "id": "TX-ERR-02",
+    "amount": "NO_ES_NUMERO",
+    "currency": "USD",
+    "timestamp": "2025-03-14 11:00:00",
+    "status": "completed"
+  },
+  {
+    "id": "TX-ERR-03",
+    "amount": "120.00",
+    "currency": "JPY",
+    "timestamp": "2025-03-14 12:30:00",
+    "status": "completed"
+  },
+  {
+    "transaction_id": 902,
+    "total": 8500,
+    "currency_code": "USD",
+    "created_at": "30/02/2025 14:00",
+    "state": "OK"
+  },
+  {
+    "ref": "A-ERR-04",
+    "amount": "€50,00",
+    "date": "2025-03-14T15:00:00Z",
+    "result": "estado_inventado"
+  },
+  {
+    "id": "",
+    "amount": "80.00",
+    "currency": "USD",
+    "timestamp": "2025-03-14 16:00:00",
+    "status": "completed"
+  },
+  {
+    "codigo_externo": "X-999",
+    "valor": 500,
+    "divisa": "USD"
+  }
+]

@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.1.0",
+  "supported_currencies": ["USD", "EUR", "GBP"],
+  "currency_symbols": {
+    "$": "USD",
+    "€": "EUR",
+    "£": "GBP"
+  },
+  "allowed_statuses": ["SUCCESS", "FAILED", "PENDING"],
+  "status_mapping": {
+    "completed": "SUCCESS",
+    "complete": "SUCCESS",
+    "success": "SUCCESS",
+    "succeeded": "SUCCESS",
+    "ok": "SUCCESS",
+    "approved": "SUCCESS",
+    "paid": "SUCCESS",
+    "failed": "FAILED",
+    "failure": "FAILED",
+    "error": "FAILED",
+    "declined": "FAILED",
+    "rejected": "FAILED",
+    "cancelled": "FAILED",
+    "canceled": "FAILED",
+    "pending": "PENDING",
+    "processing": "PENDING",
+    "in_progress": "PENDING",
+    "waiting": "PENDING",
+    "hold": "PENDING"
+  },
+  "sources": {
+    "SOURCE_A": {
+      "key_schemas": [
+        ["id", "amount", "currency", "timestamp", "status"],
+        ["transaction_id", "amount", "currency", "date", "status"]
+      ],
+      "field_aliases": {
+        "id": ["id", "transaction_id"],
+        "amount": ["amount"],
+        "currency": ["currency"],
+        "timestamp": ["timestamp", "date"],
+        "status": ["status"]
+      },
+      "date_format": "%Y-%m-%d %H:%M:%S"
+    },
+    "SOURCE_B": {
+      "key_schemas": [
+        ["transaction_id", "total", "currency_code", "created_at", "state"],
+        ["id", "total", "currency_code", "created_at", "payment_status"]
+      ],
+      "field_aliases": {
+        "id": ["transaction_id", "id"],
+        "amount": ["total"],
+        "currency": ["currency_code"],
+        "timestamp": ["created_at"],
+        "status": ["state", "payment_status"]
+      },
+      "date_format": "%d/%m/%Y %H:%M",
+      "cents_divisor": 100
+    },
+    "SOURCE_C": {
+      "key_schemas": [
+        ["ref", "amount", "date", "result"],
+        ["reference", "value", "timestamp", "state"]
+      ],
+      "field_aliases": {
+        "id": ["ref", "reference"],
+        "amount": ["amount", "value"],
+        "timestamp": ["date", "timestamp"],
+        "status": ["result", "state"]
+      },
+      "date_format": "ISO8601"
+    }
+  }
+}
